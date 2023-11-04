@@ -20,7 +20,7 @@ def cpp2_library(name, cppfront_flags = [], srcs = [], **kwargs):
         cc_files.append(cc_file)
         run_binary(
             name = name + "_rb_" + cc_file,
-            args = cppfront_flags + [s, "-output", "$(location {})".format(cc_file)],
+            args = cppfront_flags + ["$(location {})".format(s), "-output", "$(location {})".format(cc_file)],
             srcs = [s],
             outs = [cc_file],
             tool = "@cppfront//:cppfront",
