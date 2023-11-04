@@ -1,4 +1,6 @@
 load("@bazel_skylib//lib:paths.bzl", "paths")
+load("@bazel_skylib//rules:copy_file.bzl", "copy_file")
+load("@bazel_skylib//rules:run_binary.bzl", "run_binary")
 
 def cpp2_library(name, cppfront_flags = [], srcs = [], **kwargs):
     """Like cc_library, but for .cpp2 files
@@ -13,24 +15,15 @@ def cpp2_library(name, cppfront_flags = [], srcs = [], **kwargs):
 
     cc_files = []
     for s in srcs:
-        cc_files += [paths.split_extension(s)[0] + ".cpp"]
-
-    # The cppfront binary only supports outputting output files to the cwd. As
-    # such, we have to use this hacky solution to copy them from the exec root
-    # (typically in a temporary sandbox) into the location where they are
-    # supposed to go.
-    # Hopefully cppfront will add a -o flag or something so that we can remove
-    # the copy.
-    flags_str = " ".join(cppfront_flags)
-    native.genrule(
-        name = name + "_cpp2_to_cc",
-        srcs = srcs,
-        outs = cc_files,
-        cmd = ("$(location @cppfront//:cppfront) " + flags_str + " $<;" +
-               "cp " + " ".join(cc_files) + "  $(@D)"),
-        tools = ["@cppfront//:cppfront"],
-        visibility = ["//visibility:private"],
-    )
+        cc_file = paths.split_extension(s)[0] + ".cpp"
+        cc_files += [cc_file]
+        run_binary(
+            name = name + "_rb_" + cc_file,
+            args = cppfront_flags + [s, "-output", "$(location {})".format(cc_file)],
+            srcs = [s],
+            outs = [cc_file],
+            tool = "@cppfront//:cppfront",
+        )
 
     native.cc_library(
         name = name,

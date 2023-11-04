@@ -16,12 +16,13 @@ COPTS = select({
 
 cc_library(
     name = "cpp2util",
-    hdrs = ["include/cpp2util.h"],
-    includes = ["include/"],
+    hdrs = ["include/cpp2util.h", "source/build.info"],
+    includes = ["include/", "source/"],
 )
 
 cc_binary(
     name = "cppfront",
     srcs = glob(["source/*.cpp"]) + glob(["source/*.h"]),
+    deps = ["cpp2util"],
     copts = COPTS,
 )
