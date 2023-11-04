@@ -9,6 +9,11 @@ package(
     default_visibility = ["//visibility:public"],
 )
 
+COPTS = select({
+    "@bazel_tools//src/conditions:windows": ["/std:c++latest"],
+    "//conditions:default": ["--std=c++latest"],
+})
+
 cc_library(
     name = "cpp2util",
     hdrs = ["include/cpp2util.h"],
@@ -18,5 +23,5 @@ cc_library(
 cc_binary(
     name = "cppfront",
     srcs = glob(["source/*.cpp"]) + glob(["source/*.h"]),
-    copts = ["-std=c++20"],
+    copts = COPTS,
 )
