@@ -1,5 +1,4 @@
 load("@bazel_skylib//lib:paths.bzl", "paths")
-load("@bazel_skylib//rules:copy_file.bzl", "copy_file")
 load("@bazel_skylib//rules:run_binary.bzl", "run_binary")
 
 def cpp2_library(name, cppfront_flags = [], srcs = [], **kwargs):
@@ -8,15 +7,17 @@ def cpp2_library(name, cppfront_flags = [], srcs = [], **kwargs):
     This is a simple macro that takes .cpp2 files, runs them through cppfront,
     then sticks the resulting files in a cc_library.
 
-    cppfront_flags: Flags to stick in the cppfront command line
-    srcs: .cpp2 files to compile into C++ files
-    All other arguments are passed into the cc_library rule.
+    Args:
+        name: The name of this library
+        cppfront_flags: Flags to stick in the cppfront command line
+        srcs: .cpp2 files to compile into C++ files
+        **kwargs: All other arguments are passed directly into the cc_library rule.
     """
 
     cc_files = []
     for s in srcs:
         cc_file = paths.split_extension(s)[0] + ".cpp"
-        cc_files += [cc_file]
+        cc_files.append(cc_file)
         run_binary(
             name = name + "_rb_" + cc_file,
             args = cppfront_flags + [s, "-output", "$(location {})".format(cc_file)],
