@@ -11,7 +11,7 @@ package(
 
 COPTS = select({
     "@bazel_tools//src/conditions:windows": ["/std:c++latest"],
-    "//conditions:default": ["--std=c++latest"],
+    "//conditions:default": ["--std=c++2a"],
 })
 
 cc_library(
